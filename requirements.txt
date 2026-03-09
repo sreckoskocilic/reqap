@@ -1,0 +1,5 @@
+anthropic
+ebooklib
+beautifulsoup4
+lxml
+openai

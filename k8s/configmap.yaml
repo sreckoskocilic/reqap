@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: reqap-config
+  namespace: reqap
+data:
+  # Set to free-gemini for zero-cost operation (requires GEMINI_API_KEY secret)
+  LLM_MODE: "free-gemini"
+
+  # Claude (paid)
+  CLAUDE_OPUS_MODEL: "claude-opus-4-6"
+  CLAUDE_HAIKU_MODEL: "claude-haiku-4-5"
+  CLAUDE_MAX_TOKENS: "4096"
+  CLAUDE_MAX_INPUT_TOKENS: "150000"
+  HYBRID_NOTES_BACKEND: "haiku"
+
+  # Gemini free tier — 1M context, 15 RPM, 1.5M tokens/day
+  GEMINI_MODEL: "gemini-2.0-flash"
+  GEMINI_CONTEXT_TOKENS: "900000"
+
+  # Groq free tier — fast inference, 128K context
+  GROQ_NOTES_MODEL: "llama-3.1-8b-instant"
+  GROQ_SYNTHESIS_MODEL: "llama-3.3-70b-versatile"
+  GROQ_CONTEXT_TOKENS: "128000"
+
+  # Ollama (offline / local)
+  OLLAMA_URL: "http://ollama:11434"
+  OLLAMA_MODEL: "llama3.2"
+  OLLAMA_CONTEXT_TOKENS: "8192"
+
+  CHUNK_RESERVE_TOKENS: "2048"
+  UPLOAD_MAX_MB: "50"
+  PORT: "8000"

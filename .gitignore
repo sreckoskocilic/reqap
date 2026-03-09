@@ -1,0 +1,24 @@
+# Secrets
+.env
+*.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+
+# Claude Code
+.claude/
+
+# macOS
+.DS_Store
