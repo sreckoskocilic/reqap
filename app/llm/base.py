@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import AsyncIterator, Literal, Protocol, runtime_checkable
 
 
@@ -21,8 +21,7 @@ class LLMBackend(Protocol):
         max_tokens: int = 4096,
         use_cache: bool = False,
         capture_thinking: bool = False,
-    ) -> AsyncIterator[LLMEvent]:
-        ...
+    ) -> AsyncIterator[LLMEvent]: ...
 
     async def complete(
         self,

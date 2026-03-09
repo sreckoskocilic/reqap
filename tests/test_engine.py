@@ -1,23 +1,24 @@
 """Tests for app/review/engine.py"""
+
 import tempfile
 from pathlib import Path
 from typing import AsyncIterator
-from unittest.mock import patch
 
 import pytest
-import pytest_asyncio
 
 from app.llm.base import LLMEvent
-from app.review.engine import REPORT_TYPES, SSEEvent, run_review
+from app.review.engine import REPORT_TYPES, run_review
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _write_tmp_txt(content: str) -> Path:
-    f = tempfile.NamedTemporaryFile(suffix=".txt", mode="w",
-                                    encoding="utf-8", delete=False)
+    f = tempfile.NamedTemporaryFile(
+        suffix=".txt", mode="w", encoding="utf-8", delete=False
+    )
     f.write(content)
     f.close()
     return Path(f.name)
@@ -65,6 +66,7 @@ class MockRouter:
 # ---------------------------------------------------------------------------
 # run_review — basic
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_run_review_yields_done_event():
@@ -116,12 +118,10 @@ async def test_run_review_bad_file_yields_error():
 # Chapter filtering
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_run_review_chapter_indices_filters_chapters():
-    text = "\n\n".join(
-        f"Chapter {i}\n" + (f"content{i} " * 100)
-        for i in range(5)
-    )
+    text = "\n\n".join(f"Chapter {i}\n" + (f"content{i} " * 100) for i in range(5))
     path = _write_tmp_txt(text)
     router = MockRouter()
     backend = MockBackend()
@@ -147,6 +147,7 @@ async def test_run_review_no_chapters_after_filter_yields_error():
 # ---------------------------------------------------------------------------
 # Report types
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_run_review_uses_report_type_label_in_prompt():
@@ -182,6 +183,7 @@ def test_all_report_types_have_required_fields():
 # ---------------------------------------------------------------------------
 # Multi-pass (small context forces chunking)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_run_review_multipass_emits_notes_progress():
@@ -221,6 +223,7 @@ async def test_run_review_multipass_calls_notes_then_synthesis():
 # Thinking events
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_run_review_thinking_suppressed_by_default():
     path = _small_book_txt()
@@ -256,6 +259,7 @@ async def test_run_review_thinking_emitted_when_enabled():
 # ---------------------------------------------------------------------------
 # Helper
 # ---------------------------------------------------------------------------
+
 
 async def _collect(gen):
     return [e async for e in gen]

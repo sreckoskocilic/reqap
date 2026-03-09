@@ -173,7 +173,13 @@ async def run_review(
         selected = set(chapter_indices)
         chapters = [c for i, c in enumerate(chapters) if i in selected]
         if not chapters:
-            yield SSEEvent("error", {"code": "no_chapters", "message": "No chapters matched the selected indices."})
+            yield SSEEvent(
+                "error",
+                {
+                    "code": "no_chapters",
+                    "message": "No chapters matched the selected indices.",
+                },
+            )
             return
 
     total_text = " ".join(t for _, t in chapters)
@@ -193,7 +199,10 @@ async def run_review(
 
     if token_estimate <= router.synthesis_context_tokens:
         # Single pass — entire book fits
-        yield SSEEvent("progress", {"stage": "synthesis", "message": "Writing review (single-pass)…"})
+        yield SSEEvent(
+            "progress",
+            {"stage": "synthesis", "message": "Writing review (single-pass)…"},
+        )
 
         max_chars = router.synthesis_context_tokens * CHARS_PER_TOKEN
         book_text = format_chapter_group(title, author, chapters, max_chars)
@@ -204,7 +213,8 @@ async def run_review(
             f"Be specific with examples from the text."
         )
         async for evt in router.synthesis_backend.stream_text(
-            SYSTEM_PROMPT, prompt,
+            SYSTEM_PROMPT,
+            prompt,
             max_tokens=4096,
             use_cache=True,
             capture_thinking=show_thinking,
@@ -238,7 +248,7 @@ async def run_review(
             max_chars = router.notes_context_tokens * CHARS_PER_TOKEN
             group_text = format_chapter_group(title, author, group, max_chars)
             note_prompt = (
-                f"You are reading \"{title}\" by {author}. "
+                f'You are reading "{title}" by {author}. '
                 f"This is chapter group {i} of {total_groups} (chapters: {chapter_names}).\n\n"
                 f"<text>\n{group_text}\n</text>\n\n"
                 f"Extract concise reading notes. Focus especially on: {report.notes_hint}.\n\n"
@@ -258,18 +268,21 @@ async def run_review(
             all_notes.append(f"=== Notes: {chapter_names} ===\n{notes_text}")
 
         # Synthesis pass
-        yield SSEEvent("progress", {"stage": "synthesis", "message": "Writing final review…"})
+        yield SSEEvent(
+            "progress", {"stage": "synthesis", "message": "Writing final review…"}
+        )
 
         combined_notes = "\n\n".join(all_notes)
         synthesis_prompt = (
-            f"You have finished reading \"{title}\" by {author}. "
+            f'You have finished reading "{title}" by {author}. '
             f"Below are your reading notes from all {total_groups} parts.\n\n"
             f"<notes>\n{combined_notes}\n</notes>\n\n"
             f"Produce a comprehensive {report.label} covering:{report.structure}\n\n"
             f"Draw on specific examples. Write in an engaging, professional tone."
         )
         async for evt in router.synthesis_backend.stream_text(
-            SYSTEM_PROMPT, synthesis_prompt,
+            SYSTEM_PROMPT,
+            synthesis_prompt,
             max_tokens=4096,
             use_cache=True,
             capture_thinking=show_thinking,

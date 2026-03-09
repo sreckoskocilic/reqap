@@ -24,7 +24,7 @@ class Settings(BaseSettings):
 
     # ── Groq (free tier) ──────────────────────────────────────────────────
     groq_api_key: str = ""
-    groq_notes_model: str = "llama-3.1-8b-instant"      # fastest, free
+    groq_notes_model: str = "llama-3.1-8b-instant"  # fastest, free
     groq_synthesis_model: str = "llama-3.3-70b-versatile"  # best quality on Groq free
     groq_context_tokens: int = 128_000
 
@@ -34,7 +34,7 @@ class Settings(BaseSettings):
     ollama_context_tokens: int = 8192
 
     # ── Shared ────────────────────────────────────────────────────────────
-    chunk_reserve_tokens: int = 2048   # reserved per chunk for prompt + response
+    chunk_reserve_tokens: int = 2048  # reserved per chunk for prompt + response
     upload_max_mb: int = 50
 
     # Server

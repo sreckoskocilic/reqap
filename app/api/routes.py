@@ -8,7 +8,6 @@ from pathlib import Path
 from fastapi import APIRouter, Form, Request, UploadFile
 from fastapi.responses import StreamingResponse
 
-from app.config import Settings
 from app.epub.parser import estimate_tokens, extract_book_content
 from app.llm.router import LLMRouter
 from app.review.engine import SSEEvent, run_review
@@ -72,11 +71,18 @@ async def stream_review(
     max_bytes = cfg.upload_max_mb * 1024 * 1024
     content = await epub_file.read(max_bytes + 1)
     if len(content) > max_bytes:
+
         async def size_error():
-            yield _format_sse(SSEEvent("error", {
-                "code": "file_too_large",
-                "message": f"File exceeds {cfg.upload_max_mb} MB limit.",
-            }))
+            yield _format_sse(
+                SSEEvent(
+                    "error",
+                    {
+                        "code": "file_too_large",
+                        "message": f"File exceeds {cfg.upload_max_mb} MB limit.",
+                    },
+                )
+            )
+
         return StreamingResponse(size_error(), media_type="text/event-stream")
 
     async def generate():
@@ -87,7 +93,8 @@ async def stream_review(
 
         indices = (
             [int(i) for i in chapter_indices.split(",") if i.strip()]
-            if chapter_indices.strip() else None
+            if chapter_indices.strip()
+            else None
         )
 
         try:
@@ -102,7 +109,9 @@ async def stream_review(
                 if event.type in ("done", "error"):
                     break
         except Exception as exc:
-            yield _format_sse(SSEEvent("error", {"code": "internal_error", "message": str(exc)}))
+            yield _format_sse(
+                SSEEvent("error", {"code": "internal_error", "message": str(exc)})
+            )
         finally:
             os.unlink(tmp_path)
 

@@ -1,5 +1,8 @@
 anthropic
 ebooklib
 beautifulsoup4
+fastapi
 lxml
 openai
+
+pydantic-settings

@@ -1,12 +1,10 @@
 """Tests for app/api/routes.py"""
+
 import io
 import json
-import tempfile
-from pathlib import Path
 from typing import AsyncIterator
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.config import Settings
@@ -17,6 +15,7 @@ from app.main import app
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 def _make_mock_router(response: str = "Mock review."):
     """Return a mock LLMRouter whose backends yield a fixed text response."""
@@ -62,6 +61,7 @@ def _txt_upload(content: str = "Chapter 1\nSome content here.\n") -> tuple:
 # /api/health
 # ---------------------------------------------------------------------------
 
+
 def test_health_returns_ok():
     with TestClient(app) as client:
         app.state.config = Settings()
@@ -74,6 +74,7 @@ def test_health_returns_ok():
 # ---------------------------------------------------------------------------
 # /api/epub/chapters
 # ---------------------------------------------------------------------------
+
 
 def test_chapters_endpoint_returns_chapter_list():
     content = "Chapter 1\nFirst chapter text.\n\nChapter 2\nSecond chapter text.\n"
@@ -136,6 +137,7 @@ def test_chapters_endpoint_oversized_file_returns_error():
 # ---------------------------------------------------------------------------
 # /api/reviews/stream — SSE
 # ---------------------------------------------------------------------------
+
 
 def _collect_sse(response) -> list[dict]:
     """Parse SSE stream into list of {type, data} dicts."""
@@ -238,11 +240,13 @@ def test_stream_review_llm_mode_override():
     """Per-request mode override should build a new router without affecting global."""
     cfg = Settings()
     # Provide dummy keys so the router doesn't raise on init
-    cfg = cfg.model_copy(update={
-        "llm_mode": "free-gemini",
-        "gemini_api_key": "dummy",
-        "groq_api_key": "dummy",
-    })
+    cfg = cfg.model_copy(
+        update={
+            "llm_mode": "free-gemini",
+            "gemini_api_key": "dummy",
+            "groq_api_key": "dummy",
+        }
+    )
 
     with TestClient(app) as client:
         app.state.config = cfg
@@ -250,7 +254,7 @@ def test_stream_review_llm_mode_override():
 
         with patch("app.api.routes.LLMRouter") as MockLLMRouter:
             MockLLMRouter.return_value = _make_mock_router()
-            r = client.post(
+            client.post(
                 "/api/reviews/stream",
                 data={"show_thinking": "false", "llm_mode": "free-groq"},
                 files={"epub_file": _txt_upload()},

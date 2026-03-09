@@ -1,8 +1,8 @@
 """Tests for app/epub/parser.py"""
+
 import tempfile
 from pathlib import Path
 
-import pytest
 
 from app.epub.parser import (
     CHARS_PER_TOKEN,
@@ -17,6 +17,7 @@ from app.epub.parser import (
 # ---------------------------------------------------------------------------
 # estimate_tokens
 # ---------------------------------------------------------------------------
+
 
 def test_estimate_tokens_empty():
     assert estimate_tokens("") == 0
@@ -35,6 +36,7 @@ def test_estimate_tokens_consistent_with_constant():
 # ---------------------------------------------------------------------------
 # group_chapters
 # ---------------------------------------------------------------------------
+
 
 def _make_chapters(sizes):
     """Create (title, text) tuples with given character sizes."""
@@ -78,6 +80,7 @@ def test_group_chapters_single_oversized_chapter():
 # format_chapter_group
 # ---------------------------------------------------------------------------
 
+
 def test_format_chapter_group_contains_title_and_author():
     chapters = [("Introduction", "Some introductory text.")]
     result = format_chapter_group("My Book", "Jane Doe", chapters, max_chars=10000)
@@ -103,9 +106,11 @@ def test_format_chapter_group_truncates_long_chapter():
 # extract_text_content
 # ---------------------------------------------------------------------------
 
+
 def _write_tmp_txt(content: str) -> str:
-    f = tempfile.NamedTemporaryFile(suffix=".txt", mode="w",
-                                    encoding="utf-8", delete=False)
+    f = tempfile.NamedTemporaryFile(
+        suffix=".txt", mode="w", encoding="utf-8", delete=False
+    )
     f.write(content)
     f.close()
     return f.name
@@ -152,6 +157,7 @@ def test_extract_text_skips_empty_chapters():
 # ---------------------------------------------------------------------------
 # extract_book_content dispatch
 # ---------------------------------------------------------------------------
+
 
 def test_extract_book_content_dispatches_txt():
     path = _write_tmp_txt("Hello world content.")

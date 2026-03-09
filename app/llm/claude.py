@@ -52,7 +52,8 @@ class ClaudeBackend:
                 type="usage",
                 input_tokens=final.usage.input_tokens,
                 output_tokens=final.usage.output_tokens,
-                cache_read_tokens=getattr(final.usage, "cache_read_input_tokens", 0) or 0,
+                cache_read_tokens=getattr(final.usage, "cache_read_input_tokens", 0)
+                or 0,
             )
 
     async def complete(self, system: str, user: str, *, max_tokens: int = 2048) -> str:

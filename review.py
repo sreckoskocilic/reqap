@@ -24,6 +24,7 @@ well-structured reviews that are both analytically rigorous and accessible to ge
 # EPUB parsing
 # ---------------------------------------------------------------------------
 
+
 def extract_epub_content(epub_path: str) -> tuple[str, str, list[tuple[str, str]]]:
     """Return (title, author, chapters) from an EPUB file."""
     book = epub.read_epub(epub_path)
@@ -107,11 +108,23 @@ def review_online(
         model="claude-opus-4-6",
         max_tokens=4096,
         thinking={"type": "adaptive"},
-        system=[{"type": "text", "text": SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
+        system=[
+            {
+                "type": "text",
+                "text": SYSTEM_PROMPT,
+                "cache_control": {"type": "ephemeral"},
+            }
+        ],
         messages=[
             {
                 "role": "user",
-                "content": [{"type": "text", "text": user_prompt, "cache_control": {"type": "ephemeral"}}],
+                "content": [
+                    {
+                        "type": "text",
+                        "text": user_prompt,
+                        "cache_control": {"type": "ephemeral"},
+                    }
+                ],
             }
         ],
     ) as stream:
@@ -146,12 +159,16 @@ def review_online(
         file=sys.stderr,
     )
     if getattr(final.usage, "cache_read_input_tokens", None):
-        print(f"Cache read: {final.usage.cache_read_input_tokens:,} tokens", file=sys.stderr)
+        print(
+            f"Cache read: {final.usage.cache_read_input_tokens:,} tokens",
+            file=sys.stderr,
+        )
 
 
 # ---------------------------------------------------------------------------
 # Offline mode — Ollama (local model, multi-pass chunking)
 # ---------------------------------------------------------------------------
+
 
 def _ollama_stream(model: str, system: str, prompt: str, base_url: str):
     """Call Ollama via its OpenAI-compatible /v1/chat/completions endpoint."""
@@ -234,7 +251,10 @@ def review_offline(
 
     groups = _group_chapters(chapters, chunk_tokens)
     total = len(groups)
-    print(f"Offline mode: {total} chapter group(s), model={model}, context={context_tokens:,} tokens", file=sys.stderr)
+    print(
+        f"Offline mode: {total} chapter group(s), model={model}, context={context_tokens:,} tokens",
+        file=sys.stderr,
+    )
     for i, g in enumerate(groups, 1):
         names = ", ".join(t for t, _ in g)
         print(f"  Group {i}: {names}", file=sys.stderr)
@@ -260,10 +280,13 @@ def review_offline(
 
         for i, group in enumerate(groups, 1):
             chapter_names = ", ".join(t for t, _ in group)
-            print(f"  Pass {i}/{total}: extracting notes ({chapter_names})...", file=sys.stderr)
+            print(
+                f"  Pass {i}/{total}: extracting notes ({chapter_names})...",
+                file=sys.stderr,
+            )
             group_text = _format_chapter_group(title, author, group, max_chars)
             note_prompt = (
-                f"You are reading \"{title}\" by {author}. "
+                f'You are reading "{title}" by {author}. '
                 f"This is chapter group {i} of {total} "
                 f"(chapters: {chapter_names}).\n\n"
                 f"<text>\n{group_text}\n</text>\n\n"
@@ -280,10 +303,10 @@ def review_offline(
             print(f"  Notes captured: {len(notes):,} chars", file=sys.stderr)
 
         # Final synthesis pass
-        print(f"  Synthesis pass: writing final review...", file=sys.stderr)
+        print("  Synthesis pass: writing final review...", file=sys.stderr)
         combined_notes = "\n\n".join(all_notes)
         synthesis_prompt = (
-            f"You have finished reading \"{title}\" by {author}. "
+            f'You have finished reading "{title}" by {author}. '
             f"Below are your reading notes from all {total} parts of the book.\n\n"
             f"<notes>\n{combined_notes}\n</notes>\n\n"
             f"Now write a comprehensive, cohesive book review covering:{REVIEW_STRUCTURE}\n\n"
@@ -299,6 +322,7 @@ def review_offline(
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+
 
 def review_epub(
     epub_path: str,
@@ -323,7 +347,10 @@ def review_epub(
     output = sys.stdout if output_file is None else open(output_file, "w")
 
     try:
-        print(f"\nGenerating review ({'offline' if offline else 'online'})...\n", file=sys.stderr)
+        print(
+            f"\nGenerating review ({'offline' if offline else 'online'})...\n",
+            file=sys.stderr,
+        )
         print("=" * 60)
 
         if offline:
@@ -358,20 +385,32 @@ def main() -> None:
         description="Generate a comprehensive review of an EPUB book."
     )
     parser.add_argument("epub_file", help="Path to the EPUB file")
-    parser.add_argument("-o", "--output", help="Save review to file (default: stdout)", default=None)
+    parser.add_argument(
+        "-o", "--output", help="Save review to file (default: stdout)", default=None
+    )
 
     # Online options
-    parser.add_argument("--thinking", action="store_true", help="Stream Claude's thinking to stderr")
+    parser.add_argument(
+        "--thinking", action="store_true", help="Stream Claude's thinking to stderr"
+    )
 
     # Offline options
-    parser.add_argument("--offline", action="store_true", help="Use local Ollama model (no internet)")
-    parser.add_argument("--model", default="llama3.2", help="Ollama model name (default: llama3.2)")
     parser.add_argument(
-        "--context", type=int, default=8192,
-        help="Local model context window in tokens (default: 8192). "
-             "Use a higher value if your model supports it, e.g. 32768 for llama3.2:latest."
+        "--offline", action="store_true", help="Use local Ollama model (no internet)"
     )
-    parser.add_argument("--ollama-url", default="http://localhost:11434", help="Ollama base URL")
+    parser.add_argument(
+        "--model", default="llama3.2", help="Ollama model name (default: llama3.2)"
+    )
+    parser.add_argument(
+        "--context",
+        type=int,
+        default=8192,
+        help="Local model context window in tokens (default: 8192). "
+        "Use a higher value if your model supports it, e.g. 32768 for llama3.2:latest.",
+    )
+    parser.add_argument(
+        "--ollama-url", default="http://localhost:11434", help="Ollama base URL"
+    )
 
     args = parser.parse_args()
 

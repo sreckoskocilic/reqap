@@ -1,4 +1,5 @@
 """Tests for app/llm/router.py"""
+
 import pytest
 
 from app.config import Settings

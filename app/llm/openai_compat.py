@@ -2,6 +2,7 @@
 Generic OpenAI-compatible backend.
 Works with Ollama, Groq, Gemini (via their OpenAI-compat endpoint), Together, etc.
 """
+
 from typing import AsyncIterator
 from openai import AsyncOpenAI
 
@@ -19,7 +20,7 @@ class OpenAICompatBackend:
         user: str,
         *,
         max_tokens: int = 4096,
-        use_cache: bool = False,        # not supported by OpenAI-compat APIs
+        use_cache: bool = False,  # not supported by OpenAI-compat APIs
         capture_thinking: bool = False,  # not supported by OpenAI-compat APIs
     ) -> AsyncIterator[LLMEvent]:
         stream = await self._client.chat.completions.create(
